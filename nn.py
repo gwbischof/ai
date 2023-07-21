@@ -14,43 +14,45 @@ def get_record(data, labels):
 
 
 def boolean_activation(inputs, weights):
-    return int(sum(inputs * weights[:,1]) > 0)
+    """
+    If K=0 learning is not possible, with one node and without a edge bias.
+    This is because it is not possible to map a float between 0 and 1,
+    to be greater than 0 if the value is greater than .8 just by scaling it.
+    Maybe this can be solved with multiple nodes?
+    Is it meaningful to have more nodes than inputs on the first layer?
+    """
+    K = 1
+    return int(sum(inputs * weights) > K)
 
 
 def simple_correction(weights, error):
-    return numpy.stack([weights[:,0] + 1, weights[:,1] + error/(weights[0,0]+1)],axis=1)
+    weights[:] = weights + (0.01*error)
 
 
 def train_record(weights, inputs, label,activation=boolean_activation, correction=simple_correction):
     output = activation(inputs, weights)
-    error = output - label
-    return simple_correction(weights, error)
+    error = label-output
+    before = weights.copy()
+    simple_correction(weights, error)
+    print(output, label, error, before, weights)
 
 
 def train_dataset(weights, data_loader):
     total_error = 0
-    local_weights = weights.copy()
     for inputs, label in data_loader:
-        local_weights = train_record(local_weights, inputs, label)
-    return local_weights
-
-
-def test_record(weights, inputs, label, activation=boolean_activation):
-    output = activation(inputs, weights)
-    error = output - label
-    return error
+        train_record(weights, inputs, label)
 
 
 def check_accuracy(weights, data_loader, activation=boolean_activation):
-    errors = [int(bool(activation(inputs, weights)-label)) for inputs, label in data_loader]
+    errors = [activation(inputs, weights)==label for inputs, label in data_loader]
     return sum(errors)/len(errors)
 
 
 def train_example():
-    weights = numpy.zeros((len(data[0]), 2))
+    weights = numpy.zeros(len(data[0]))
     for i in range(10):
         data_loader = get_record(data, labels)
-        weights = train_dataset(weights, data_loader)
+        train_dataset(weights, data_loader)
         print(weights)
         data_loader = get_record(data, labels)
         print("accuracy", check_accuracy(weights, data_loader))

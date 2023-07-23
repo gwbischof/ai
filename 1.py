@@ -1,3 +1,13 @@
+"""
+Problem:
+What does training the simplest NN look like?
+
+Follow up:
+- It seems like a single node NN is limited to approximating a linear function.
+- What are the limitations of a single node binary activation NN?
+    - Can I check if a binary number between 0-3 is equal to 3 with just a single node? How many nodes do I need to do this?
+"""
+
 import numpy
 
 # Generate some data.

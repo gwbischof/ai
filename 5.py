@@ -4,6 +4,7 @@ Figure out how to train the binary activation node
 
 
 I think the code is working correcty, i just think learning is not possible like this.
+I think that this cannot learn because inputs and weights are all avergaged together by the single node, so each input effects the output equally. So it can't figure out that the weight 3rd weight should be smaller.
 """
 
 import numpy

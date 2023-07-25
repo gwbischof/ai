@@ -1,27 +1,16 @@
 """
 Problem:
-Update the correction function to have independant weight values to see if it can fix the problem.
+Figure out how to train the binary activation node
 
-Todo:
-Making a small adjustment to the weights is never effecting the error, with only 1000 records.
 
-It seems like binary activation is hard to train because it is difficult to determine which way to adjust the weights.
-
-This post addresses this problem:
-https://towardsdatascience.com/binarized-neural-networks-an-overview-d065dc3c94ca
-
-I think we can swap out the binary activation with a continious output activation in order to figure out the new weights.
-
-With binary activation and binary weights we should be able to figure out if to images are identical, by converting the images to binary first.
-
-If have an image where each pixel is a integer, than binary weights and a single node, wont be enough.
+I think the code is working correcty, i just think learning is not possible like this.
 """
 
 import numpy
 
 # Generate some data.
 numpy.random.seed(99)
-data = numpy.random.choice(a=[0,1], size=(100000,3))
+data = numpy.random.choice(a=[0,1], size=(1000,3))
 
 # Generate the labels
 # The labels is true if the sum of the inputs is 3.
@@ -62,7 +51,7 @@ def simple_correction(weights, error):
     weights[:] = weights + (0.01*error)
 
 
-def naive_correction(record, label, weights, activation=boolean_activation):
+def naive_correction(record, label, weights, activation=continious_activation):
     """
     Taking a guess at how to update weights independantly.
     If there is an error, adjust each weight seperatly, and check the error again.
@@ -75,25 +64,24 @@ def naive_correction(record, label, weights, activation=boolean_activation):
     # Constant to increment or decrement a weight by.
     # Because the output is binary the adjustment to the weight
     # can't be proporital to the error.
-    K = 1
+    K = 0.01
 
     error = label - activation(record, weights)
-
-    if error != 0:
-        for i, weight in enumerate(weights):
-            temp_weights = weights.copy()
-            temp_weights[i] -= K
-            new_error = label - activation(record, temp_weights)
-            if new_error==0:
-                # Even with K=1 the error is never improved.
-                breakpoint()
-                weights[i] = temp_weights[i]
+    if error > 0:
+        breakpoint()
         for i, weight in enumerate(weights):
             temp_weights = weights.copy()
             temp_weights[i] += K
             new_error = label - activation(record, temp_weights)
-            if new_error==0:
-                breakpoint()
+            if abs(new_error) < abs(error):
+                # Even with K=1 the error is never improved.
+                weights[i] = temp_weights[i]
+    elif error < 0:
+        for i, weight in enumerate(weights):
+            temp_weights = weights.copy()
+            temp_weights[i] -= K
+            new_error = label - activation(record, temp_weights)
+            if abs(new_error) > abs(error):
                 weights[i] = temp_weights[i]
 
 
@@ -103,7 +91,7 @@ def train_record(weights, inputs, label,activation=boolean_activation, correctio
     before = weights.copy()
     correction(inputs, label, weights)
     print({'record': inputs, 'label': label,
-           'output': output, 'error': error})
+           'output': output, 'error': error, 'weights': weights})
 
 
 def train_dataset(weights, data_loader):

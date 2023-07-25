@@ -4,6 +4,17 @@ Update the correction function to have independant weight values to see if it ca
 
 Todo:
 Making a small adjustment to the weights is never effecting the error, with only 1000 records.
+
+It seems like binary activation is hard to train because it is difficult to determine which way to adjust the weights.
+
+This post addresses this problem:
+https://towardsdatascience.com/binarized-neural-networks-an-overview-d065dc3c94ca
+
+I think we can swap out the binary activation with a continious output activation in order to figure out the new weights.
+
+With binary activation and binary weights we should be able to figure out if to images are identical, by converting the images to binary first.
+
+If have an image where each pixel is a integer, than binary weights and a single node, wont be enough.
 """
 
 import numpy

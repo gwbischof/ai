@@ -1,14 +1,16 @@
 """
-Todo:
+Problem:
 Update the correction function to have independant weight values to see if it can fix the problem.
 
+Todo:
+Making a small adjustment to the weights is never effecting the error, with only 1000 records.
 """
 
 import numpy
 
 # Generate some data.
 numpy.random.seed(99)
-data = numpy.random.choice(a=[0,1], size=(1000,3))
+data = numpy.random.choice(a=[0,1], size=(100000,3))
 
 # Generate the labels
 # The labels is true if the sum of the inputs is 3.
@@ -51,23 +53,25 @@ def naive_correction(record, label, weights, activation=boolean_activation):
     # Constant to increment or decrement a weight by.
     # Because the output is binary the adjustment to the weight
     # can't be proporital to the error.
-    K = 0.01
+    K = 1
 
     error = label - activation(record, weights)
-    if not error:
-        return
 
-    for i, weight in enumerate(weights):
-        temp_weights = weights.copy()
-        temp_weights[i] += K
-        new_error = label - activation(record, temp_weights)
-        if new_error < error:
-            weights[i] = temp_weights[i]
-        else:
+    if error != 0:
+        for i, weight in enumerate(weights):
             temp_weights = weights.copy()
             temp_weights[i] -= K
             new_error = label - activation(record, temp_weights)
-            if new_error < error:
+            if new_error==0:
+                # Even with K=1 the error is never improved.
+                breakpoint()
+                weights[i] = temp_weights[i]
+        for i, weight in enumerate(weights):
+            temp_weights = weights.copy()
+            temp_weights[i] += K
+            new_error = label - activation(record, temp_weights)
+            if new_error==0:
+                breakpoint()
                 weights[i] = temp_weights[i]
 
 
